@@ -21,6 +21,27 @@ fn draw_world(buffer: &mut Vec<u32>, world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN]
         .unwrap();
 }
 
+fn get_live_neighbor_count(cell_pos: (usize, usize), world: &[[bool; CELL_ROW_LEN]; CELL_ROW_LEN]) -> u8 {
+    let mut live_neighbor_count = 0;
+    let x = cell_pos.0;
+    let y = cell_pos.1;
+
+    if x > 0 && world[x - 1][y] { live_neighbor_count += 1 };
+    if x < CELL_ROW_LEN - 1 && world[x + 1][y] { live_neighbor_count += 1 };
+    if y > 0 && world[x][y - 1] { live_neighbor_count += 1 };
+    if y < CELL_ROW_LEN - 1 && world[x][y + 1] { live_neighbor_count += 1 };
+
+    live_neighbor_count
+}
+
+fn update_world(world: &mut [[bool; CELL_ROW_LEN]; CELL_ROW_LEN]) {
+    for x in 0..world.len() {
+        for y in 0..CELL_ROW_LEN {
+            println!("{}, {}, {}", x, y, get_live_neighbor_count((x, y), world));
+        }
+    }
+}
+
 fn main() {
     // Define window information
     let mut buffer: Vec<u32> = vec![0; DIM*DIM];
@@ -42,6 +63,7 @@ fn main() {
     // Graphics loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
         std::thread::sleep(frame_duration);
+        update_world(&mut world);
         draw_world(&mut buffer, world, &mut window);
     }
 }
