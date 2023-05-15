@@ -3,6 +3,7 @@ use minifb::{Key, Window, WindowOptions};
 const DIM: usize = 512;
 const CELL_SIZE: usize = 128;
 const CELL_ROW_LEN: usize = DIM / CELL_SIZE;
+const FPS: u64 = 15;
 
 fn draw_world(buffer: &mut Vec<u32>, world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN], window: &mut Window) {
     for y in 0..world.len() {
@@ -35,8 +36,12 @@ fn main() {
 
     world[0][0] = true;
 
+    // Time to sleep
+    let frame_duration = std::time::Duration::from_secs_f64(1.0 / FPS as f64);
+
     // Graphics loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        std::thread::sleep(frame_duration);
         draw_world(&mut buffer, world, &mut window);
     }
 }
