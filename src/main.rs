@@ -2,11 +2,11 @@ use minifb::{Key, Window, WindowOptions};
 
 const DIM: usize = 512;
 const CELL_SIZE: usize = 128;
-const CELL_ROW_COUNT: usize = DIM / CELL_SIZE;
+const CELL_ROW_LEN: usize = DIM / CELL_SIZE;
 
-fn draw_world(buffer: &mut Vec<u32>, world: [[bool; CELL_ROW_COUNT]; CELL_ROW_COUNT], window: &mut Window) {
+fn draw_world(buffer: &mut Vec<u32>, world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN], window: &mut Window) {
     for y in 0..world.len() {
-        for x in 0..world[y].len() {
+        for x in 0..CELL_ROW_LEN {
             let cell_start_index = y * CELL_SIZE*DIM+x*CELL_SIZE;
             let cell_color = if world[x][y] { 0 } else { 255 << 16 | 255 << 8 | 255 };
             for x_cell in 0..CELL_SIZE {
@@ -31,7 +31,7 @@ fn main() {
     ).unwrap();
 
     // Init world
-    let mut world: [[bool; CELL_ROW_COUNT]; CELL_ROW_COUNT] = [[false; CELL_ROW_COUNT]; CELL_ROW_COUNT];
+    let mut world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
     world[0][0] = true;
 
