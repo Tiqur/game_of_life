@@ -1,7 +1,7 @@
 use minifb::{Key, Window, WindowOptions};
 
 const DIM: usize = 512;
-const CELL_SIZE: usize = 128;
+const CELL_SIZE: usize = 32;
 const CELL_ROW_LEN: usize = DIM / CELL_SIZE;
 const FPS: u64 = 15;
 
@@ -37,7 +37,13 @@ fn get_live_neighbor_count(cell_pos: (usize, usize), world: &[[bool; CELL_ROW_LE
 fn update_world(world: &mut [[bool; CELL_ROW_LEN]; CELL_ROW_LEN]) {
     for x in 0..world.len() {
         for y in 0..CELL_ROW_LEN {
-            println!("{}, {}, {}", x, y, get_live_neighbor_count((x, y), world));
+            let live_neighbor_count = get_live_neighbor_count((x, y), world);
+            world[x][y] = match (world[x][y], live_neighbor_count) {
+                (true, 2..=3) => true,      // Live cell with 2 or 3 live neighbors survives
+                (true, _) => false,         // Live cell with fewer than 2 or more than 3 live neighbors dies
+                (false, 3) => true,         // Dead cell with exactly 3 live neighbors becomes alive
+                _ => world[x][y],           // For all other cases, the cell state remains the same
+            };
         }
     }
 }
@@ -55,7 +61,10 @@ fn main() {
     // Init world
     let mut world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
-    world[0][0] = true;
+    world[2][2] = true;
+    world[2][3] = true;
+    world[3][2] = true;
+    world[3][3] = true;
 
     // Time to sleep
     let frame_duration = std::time::Duration::from_secs_f64(1.0 / FPS as f64);
