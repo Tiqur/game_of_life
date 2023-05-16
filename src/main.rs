@@ -2,7 +2,7 @@ use minifb::{Key, Window, WindowOptions};
 use rand::Rng;
 
 const DIM: usize = 512;
-const CELL_SIZE: usize = 8;
+const CELL_SIZE: usize = 4;
 const CELL_ROW_LEN: usize = DIM / CELL_SIZE;
 const FPS: u64 = 15;
 
@@ -11,6 +11,7 @@ fn draw_world(
     world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
     window: &mut Window,
 ) {
+    // Iterate over cells in world and draw squares from pixels onto buffer
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let cell_start_index = y * CELL_SIZE * DIM + x * CELL_SIZE;
@@ -19,6 +20,8 @@ fn draw_world(
             } else {
                 255 << 16 | 255 << 8 | 255
             };
+
+            // Draw square
             for x_cell in 0..CELL_SIZE {
                 for y_cell in 0..CELL_SIZE {
                     buffer[cell_start_index + x_cell + y_cell * DIM] = cell_color;
@@ -39,15 +42,16 @@ fn get_live_neighbor_count(
     let x32 = x as i32;
     let y32 = y as i32;
 
+    // Iterate over all neighbors ( except for center )
     for i in -1..=1 {
         for j in -1..=1 {
             if i == 0 && j == 0 {
                 continue;
             }
 
+            // Ensure array indexing is within bounds
             let new_x32 = x32.checked_add(j);
             let new_y32 = y32.checked_add(i);
-
             if let (Some(new_x), Some(new_y)) = (new_x32, new_y32) {
                 let new_x_usize = new_x as usize;
                 let new_y_usize = new_y as usize;
@@ -63,12 +67,15 @@ fn get_live_neighbor_count(
 
     live_neighbor_count
 }
+
 fn get_updated_world(
     world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
 ) -> [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] {
+    // Create new world to return
     let mut next_world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] =
         [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
+    // Iterate over world and calculate new frame
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let live_neighbor_count = get_live_neighbor_count((x, y), world);
