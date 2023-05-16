@@ -103,7 +103,7 @@ fn main() {
     // Init colors
     let cell_alive_color = 0;
     let cell_dead_color = 255 << 16 | 255 << 8 | 255;
-    let paused_cell_alive_color = 128 << 16 | 128 << 8 | 128;
+    let paused_cell_alive_color = 64 << 16 | 64 << 8 | 64;
     let paused_cell_dead_color = 200 << 16 | 200 << 8 | 200;
 
     // Set random
