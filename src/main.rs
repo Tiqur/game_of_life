@@ -10,15 +10,17 @@ fn draw_world(
     buffer: &mut Vec<u32>,
     world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
     window: &mut Window,
+    alive_color: u32,
+    dead_color: u32
 ) {
     // Iterate over cells in world and draw squares from pixels onto buffer
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let cell_start_index = y * CELL_SIZE * DIM + x * CELL_SIZE;
             let cell_color = if world[y][x] {
-                0
+                dead_color
             } else {
-                255 << 16 | 255 << 8 | 255
+                alive_color
             };
 
             // Draw square
@@ -102,6 +104,13 @@ fn main() {
     // Init world
     let mut world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
+    // Init colors
+    let cell_alive_color = 255 << 16 | 255 << 8 | 255;
+    let cell_dead_color = 0;
+    let paused_cell_alive_color = 200 << 16 | 200 << 8 | 200;
+    let paused_cell_dead_color = 128 << 16 | 128 << 8 | 128;
+
+
     // Set random
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
@@ -113,10 +122,27 @@ fn main() {
     // Time to sleep
     let frame_duration = std::time::Duration::from_secs_f64(1.0 / FPS as f64);
 
+    // Game pause state
+    let mut is_paused = false;
+
     // Graphics loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        draw_world(&mut buffer, world, &mut window);
-        world = get_updated_world(world);
-        std::thread::sleep(frame_duration);
+        // Pause game
+        if window.is_key_pressed(Key::Space, minifb::KeyRepeat::No) {
+            is_paused = true;
+        }
+
+        // What the function says :P
+        draw_world(&mut buffer, world, &mut window, if is_paused {paused_cell_alive_color} else {cell_alive_color}, if is_paused {paused_cell_dead_color} else {cell_dead_color});
+
+        // Update world if not paused
+        if !is_paused {
+            world = get_updated_world(world);
+
+            // Also don't need to worry about FPS when paused
+            // If anything, it's better to have infinite FPS when accepting user input
+            std::thread::sleep(frame_duration);
+        }
+
     }
 }
