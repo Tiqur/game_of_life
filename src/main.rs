@@ -17,7 +17,7 @@ fn draw_world(
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let cell_start_index = y * CELL_SIZE * DIM + x * CELL_SIZE;
-            let cell_color = if world[y][x] { dead_color } else { alive_color };
+            let cell_color = if world[y][x] { alive_color } else { dead_color };
 
             // Draw square
             for x_cell in 0..CELL_SIZE {
@@ -101,10 +101,10 @@ fn main() {
     let mut world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
     // Init colors
-    let cell_alive_color = 255 << 16 | 255 << 8 | 255;
-    let cell_dead_color = 0;
-    let paused_cell_alive_color = 200 << 16 | 200 << 8 | 200;
-    let paused_cell_dead_color = 128 << 16 | 128 << 8 | 128;
+    let cell_alive_color = 0;
+    let cell_dead_color = 255 << 16 | 255 << 8 | 255;
+    let paused_cell_alive_color = 128 << 16 | 128 << 8 | 128;
+    let paused_cell_dead_color = 200 << 16 | 200 << 8 | 200;
 
     // Set random
     for y in 0..CELL_ROW_LEN {
