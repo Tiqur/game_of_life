@@ -11,17 +11,13 @@ fn draw_world(
     world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
     window: &mut Window,
     alive_color: u32,
-    dead_color: u32
+    dead_color: u32,
 ) {
     // Iterate over cells in world and draw squares from pixels onto buffer
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let cell_start_index = y * CELL_SIZE * DIM + x * CELL_SIZE;
-            let cell_color = if world[y][x] {
-                dead_color
-            } else {
-                alive_color
-            };
+            let cell_color = if world[y][x] { dead_color } else { alive_color };
 
             // Draw square
             for x_cell in 0..CELL_SIZE {
@@ -110,7 +106,6 @@ fn main() {
     let paused_cell_alive_color = 200 << 16 | 200 << 8 | 200;
     let paused_cell_dead_color = 128 << 16 | 128 << 8 | 128;
 
-
     // Set random
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
@@ -133,7 +128,21 @@ fn main() {
         }
 
         // What the function says :P
-        draw_world(&mut buffer, world, &mut window, if is_paused {paused_cell_alive_color} else {cell_alive_color}, if is_paused {paused_cell_dead_color} else {cell_dead_color});
+        draw_world(
+            &mut buffer,
+            world,
+            &mut window,
+            if is_paused {
+                paused_cell_alive_color
+            } else {
+                cell_alive_color
+            },
+            if is_paused {
+                paused_cell_dead_color
+            } else {
+                cell_dead_color
+            },
+        );
 
         // Update world if not paused
         if !is_paused {
@@ -143,6 +152,5 @@ fn main() {
             // If anything, it's better to have infinite FPS when accepting user input
             std::thread::sleep(frame_duration);
         }
-
     }
 }
