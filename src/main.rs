@@ -124,7 +124,7 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Pause game
         if window.is_key_pressed(Key::Space, minifb::KeyRepeat::No) {
-            is_paused = true;
+            is_paused = !is_paused;
         }
 
         // What the function says :P
