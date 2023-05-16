@@ -1,28 +1,38 @@
-use rand::Rng;
 use minifb::{Key, Window, WindowOptions};
+use rand::Rng;
 
 const DIM: usize = 512;
 const CELL_SIZE: usize = 8;
 const CELL_ROW_LEN: usize = DIM / CELL_SIZE;
 const FPS: u64 = 15;
 
-fn draw_world(buffer: &mut Vec<u32>, world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN], window: &mut Window) {
+fn draw_world(
+    buffer: &mut Vec<u32>,
+    world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
+    window: &mut Window,
+) {
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
-            let cell_start_index = y * CELL_SIZE*DIM+x*CELL_SIZE;
-            let cell_color = if world[y][x] { 0 } else { 255 << 16 | 255 << 8 | 255 };
+            let cell_start_index = y * CELL_SIZE * DIM + x * CELL_SIZE;
+            let cell_color = if world[y][x] {
+                0
+            } else {
+                255 << 16 | 255 << 8 | 255
+            };
             for x_cell in 0..CELL_SIZE {
                 for y_cell in 0..CELL_SIZE {
-                    buffer[cell_start_index+x_cell+y_cell*DIM] = cell_color;
+                    buffer[cell_start_index + x_cell + y_cell * DIM] = cell_color;
                 }
             }
         }
     }
-    window.update_with_buffer(&buffer, DIM, DIM)
-        .unwrap();
+    window.update_with_buffer(&buffer, DIM, DIM).unwrap();
 }
 
-fn get_live_neighbor_count(cell_pos: (usize, usize), world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN]) -> u8 {
+fn get_live_neighbor_count(
+    cell_pos: (usize, usize),
+    world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
+) -> u8 {
     let mut live_neighbor_count = 0;
     let x = cell_pos.0;
     let y = cell_pos.1;
@@ -52,17 +62,21 @@ fn get_live_neighbor_count(cell_pos: (usize, usize), world: [[bool; CELL_ROW_LEN
     }
 
     live_neighbor_count
-}fn get_updated_world(world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN]) -> [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] {
-    let mut next_world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
+}
+fn get_updated_world(
+    world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN],
+) -> [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] {
+    let mut next_world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] =
+        [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
 
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let live_neighbor_count = get_live_neighbor_count((x, y), world);
             next_world[y][x] = match (world[y][x], live_neighbor_count) {
-                (true, 2..=3) => true,    // Live cell with 2 or 3 live neighbors survives
-                (true, _) => false,       // Live cell with fewer than 2 or more than 3 live neighbors dies
-                (false, 3) => true,       // Dead cell with exactly 3 live neighbors becomes alive
-                _ => next_world[y][x],    // For all other cases, the cell state remains the same
+                (true, 2..=3) => true, // Live cell with 2 or 3 live neighbors survives
+                (true, _) => false, // Live cell with fewer than 2 or more than 3 live neighbors dies
+                (false, 3) => true, // Dead cell with exactly 3 live neighbors becomes alive
+                _ => next_world[y][x], // For all other cases, the cell state remains the same
             };
         }
     }
@@ -74,56 +88,20 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     // Define window information
-    let mut buffer: Vec<u32> = vec![0; DIM*DIM];
-    let mut window = Window::new(
-        "Conway's Game Of Life",
-        DIM,
-        DIM,
-        WindowOptions::default()
-    ).unwrap();
+    let mut buffer: Vec<u32> = vec![0; DIM * DIM];
+    let mut window =
+        Window::new("Conway's Game Of Life", DIM, DIM, WindowOptions::default()).unwrap();
 
     // Init world
     let mut world: [[bool; CELL_ROW_LEN]; CELL_ROW_LEN] = [[false; CELL_ROW_LEN]; CELL_ROW_LEN];
-
-
-    //world[10][10] = true;
-    //world[11][11] = true;
-    //world[10][12] = true;
-    //world[11][13] = true;
-    //world[10][14] = true;
 
     // Set random
     for y in 0..CELL_ROW_LEN {
         for x in 0..CELL_ROW_LEN {
             let random = rng.gen();
             world[x][y] = random;
-        }   
+        }
     }
-    
-    //world[10][10] = true;
-    //world[10][11] = true;
-    //world[11][10] = true;
-    //world[11][11] = true;
-
-    // Blinker
-    //world[10][10] = true;
-    //world[10][11] = true;
-    //world[10][12] = true;
-    
-    // Toad
-    //world[9][11] = true;
-    //world[10][10] = true;
-    //world[10][11] = true;
-    //world[11][10] = true;
-    //world[11][11] = true;
-    //world[12][10] = true;
-
-    // Glider
-    //world[10][10] = true;
-    //world[10][11] = true;
-    //world[10][12] = true;
-    //world[9][12] = true;
-    //world[8][11] = true;
 
     // Time to sleep
     let frame_duration = std::time::Duration::from_secs_f64(1.0 / FPS as f64);
